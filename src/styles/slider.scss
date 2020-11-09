@@ -1,0 +1,24 @@
+.image-slider{
+    position: relative;
+    height: 100%;
+    margin: 0 auto;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+
+    &__content{
+        height: 100%;
+        transition: transform 1s;
+        width: 900px;
+        display: flex;
+    }
+
+    &__slide{
+        height: 100%;
+        min-height: 500px;
+        width: 100%;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+}
