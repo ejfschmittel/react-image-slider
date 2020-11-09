@@ -117,6 +117,20 @@ const ImageSlider = ({images, trasition: transtionTime}) => {
         ]
     }
 
+    const goToSlide = (slideIndex) => {
+
+        const newSlides = getSlides(slideIndex)
+
+        setState({
+            ...state,
+            inputQueue: 0,
+            activeSlide: slideIndex,
+            currentSlides: newSlides,
+            translate: containerWidth,
+            transition: 0,
+            isTransitioning: false,
+        })
+    }
     
 
     const setTranslateToContainerWidth = () => {
@@ -160,6 +174,29 @@ const ImageSlider = ({images, trasition: transtionTime}) => {
                 <FontAwesomeIcon icon={faArrowAltCircleLeft} size="4x" />
             </div>
 
+            <SliderControls images={images} onClick={goToSlide} activeSlide={state.activeSlide}/>
+
+        </div>
+    )
+}
+
+const SliderControls = ({images, onClick, activeSlide}) => {
+    return (
+        <div className="image-slider__slide-controls">
+            {images.length <= 10 ?
+                images.map((image, index) => {
+                    return (
+                        <div 
+                            key={`${image}-control-${index}`} 
+                            className={`
+                                image-slider__slide-btn
+                                ${activeSlide == index && "image-slider__slide-btn--active"}
+                                `}
+                            onClick={(e) => onClick(index)}
+                            ></div>
+                    )
+                })
+            : null}    
         </div>
     )
 }
