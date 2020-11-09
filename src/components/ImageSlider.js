@@ -15,7 +15,7 @@ function mod(n, m) {
     return ((n % m) + m) % m;
 }
 
-const useContainerWidth = (containerRef) => {
+const useContainerWidth = (containerRef, fullscreen) => {
     const [containerWidth, setContainerWidth] = useState(0); 
     const handleResize = () => {
         if(containerRef.current){
@@ -28,6 +28,11 @@ const useContainerWidth = (containerRef) => {
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }, [handleResize]);
+
+    // recalc container width after going fullscreen toggle
+    useEffect(() => {
+        setContainerWidth(containerRef.current.clientWidth)
+    }, [fullscreen]);
 
     // get initial container size on mount
     useEffect(() => {
@@ -44,7 +49,9 @@ const ImageSlider = ({images, trasition: transtionTime}) => {
 
     const containerRef = useRef()
     const sliderContent = useRef()
-    const containerWidth = useContainerWidth(containerRef)
+
+    const [fullScreen, setFullScreen] = useState(false)
+    const containerWidth = useContainerWidth(containerRef, fullScreen)
   
 
     const [state, setState] = useState({
@@ -151,7 +158,7 @@ const ImageSlider = ({images, trasition: transtionTime}) => {
     const onLeftArrowClick = () => addToInputQueue(-1)
 
     return (
-        <div className={`image-slider`} ref={containerRef}>
+        <div className={`image-slider  ${fullScreen && "image-slider--fullscreen"}`} ref={containerRef}>
             <ImageSliderContent 
                 width={containerWidth} 
                 translate={state.translate} 
@@ -176,6 +183,14 @@ const ImageSlider = ({images, trasition: transtionTime}) => {
 
             <SliderControls images={images} onClick={goToSlide} activeSlide={state.activeSlide}/>
 
+            <div className="image-slider__fullscreen-btn">
+                {!fullScreen ? 
+                    <FontAwesomeIcon icon={faExpand} size="2x" onClick={() => setFullScreen(true)}/>
+                    :
+                    <FontAwesomeIcon icon={faCompress} size="2x" onClick={() => setFullScreen(false)}/>
+                }
+                
+            </div>
         </div>
     )
 }
