@@ -1,7 +1,7 @@
 import React from 'react'
 
 
-const SliderContent = React.forwardRef(({children, width, translate}, ref) => {
+const SliderContent = React.forwardRef(({children, width, translate, transition}, ref) => {
     return (
         <div 
             ref={ref} 
@@ -9,6 +9,7 @@ const SliderContent = React.forwardRef(({children, width, translate}, ref) => {
             style={{
                 width: `${width * 3}px`, 
                 transform: `translateX(-${translate}px)`,
+                transition: `transform ease-out ${transition}s`
             }}
             >
            {children}

@@ -11,6 +11,10 @@ import "../styles/slider.scss"
 
 const INPUT_QUEUE_MAX = 3;
 
+function mod(n, m) {
+    return ((n % m) + m) % m;
+}
+
 const useContainerWidth = (containerRef) => {
     const [containerWidth, setContainerWidth] = useState(0); 
     const handleResize = () => {
@@ -35,8 +39,9 @@ const useContainerWidth = (containerRef) => {
 };
 
 
-const ImageSlider = ({images}) => {
-  
+const ImageSlider = ({images, trasition: transtionTime}) => {
+    transtionTime = transtionTime ? transtionTime : .5;
+
     const containerRef = useRef()
     const containerWidth = useContainerWidth(containerRef)
   
@@ -44,6 +49,8 @@ const ImageSlider = ({images}) => {
     const [state, setState] = useState({
         activeSlide: 0,
         translate: containerWidth,
+        transition: 0,
+        isTransitioning: false,
         currentSlides: [images.length-1,0,1],
         inputQueue: 0,
     })
@@ -51,6 +58,31 @@ const ImageSlider = ({images}) => {
     useEffect(() => {
         setTranslateToContainerWidth();
     }, [containerWidth])
+
+    useEffect(() => {
+        if(state.inputQueue !== 0 && !state.isTransitioning){
+            // start one transition (updateTranslateX)
+            startSlideTransition()
+        }
+    }, [state])
+
+    const startSlideTransition = () => {
+        if(state.inputQueue === 0) return
+
+        const updateDirection = state.inputQueue > 0 ? 1 : -1;
+        const nextActiveSlide = mod(state.activeSlide + updateDirection, images.length)
+
+        const translate = state.translate + (updateDirection) * containerWidth;
+
+        setState({
+            ...state,
+            activeSlide: nextActiveSlide,
+            translate: translate,
+            transition: transtionTime,
+            isTransitioning: true,
+            inputQueue: state.inputQueue - updateDirection
+        })
+    }
 
     const setTranslateToContainerWidth = () => {
         setState({
@@ -75,7 +107,7 @@ const ImageSlider = ({images}) => {
                 width={containerWidth} 
                 translate={state.translate} 
                 slideCount={state.currentSlides.length} 
-        
+                transition={state.transition} 
                 >
                 {   
                     state.currentSlides.map(slideIndex => {
