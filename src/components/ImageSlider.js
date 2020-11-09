@@ -7,19 +7,57 @@ import ImageSliderContent from "./ImageSliderContent"
 import ImageSliderSlide from "./ImageSliderSlide"
 
 
+const useContainerWidth = (containerRef) => {
+    const [containerWidth, setContainerWidth] = useState(0); 
+    const handleResize = () => {
+        if(containerRef.current){
+            setContainerWidth(containerRef.current.clientWidth)
+        }
+    }
+
+    // recalc container width after window resize
+    useEffect(() => {
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, [handleResize]);
+
+    // get initial container size on mount
+    useEffect(() => {
+        if(containerRef.current){
+            setContainerWidth(containerRef.current.clientWidth)
+        }
+    }, [])
+    return containerWidth;
+};
+
+
 const ImageSlider = ({images}) => {
+  
+    const containerRef = useRef()
+    const containerWidth = useContainerWidth(containerRef)
   
 
     const [state, setState] = useState({
         activeSlide: 0,
-        translate: 0,
+        translate: containerWidth,
         currentSlides: [images.length-1,0,1],
     })
 
+    useEffect(() => {
+        setTranslateToContainerWidth();
+    }, [containerWidth])
+
+    const setTranslateToContainerWidth = () => {
+        setState({
+            ...state,
+            translate: containerWidth
+        })
+    }
+
     return (
-        <div className={`image-slider`}>
+        <div className={`image-slider`} ref={containerRef}>
             <ImageSliderContent 
-                width={800} 
+                width={containerWidth} 
                 translate={state.translate} 
                 slideCount={state.currentSlides.length} 
         
@@ -27,7 +65,7 @@ const ImageSlider = ({images}) => {
                 {   
                     state.currentSlides.map(slideIndex => {
                         return (
-                           <ImageSliderSlide key={images[slideIndex] + slideIndex} width={800} image={images[slideIndex]}/>
+                           <ImageSliderSlide key={images[slideIndex] + slideIndex} width={containerWidth} image={images[slideIndex]}/>
                         )
                     })
                 }
