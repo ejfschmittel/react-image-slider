@@ -43,6 +43,7 @@ const ImageSlider = ({images, trasition: transtionTime}) => {
     transtionTime = transtionTime ? transtionTime : .5;
 
     const containerRef = useRef()
+    const sliderContent = useRef()
     const containerWidth = useContainerWidth(containerRef)
   
 
@@ -66,6 +67,18 @@ const ImageSlider = ({images, trasition: transtionTime}) => {
         }
     }, [state])
 
+    useEffect(() => {
+        if(sliderContent.current){
+             sliderContent.current.addEventListener('transitionend', onTransitionEnd)
+        }
+     
+        return () => {    
+            if(sliderContent.current){    
+                sliderContent.current.removeEventListener('transitionend', onTransitionEnd)
+            }
+        }
+    }, [state])
+
     const startSlideTransition = () => {
         if(state.inputQueue === 0) return
 
@@ -83,6 +96,28 @@ const ImageSlider = ({images, trasition: transtionTime}) => {
             inputQueue: state.inputQueue - updateDirection
         })
     }
+
+    const onTransitionEnd = () => {
+        const newSlides = getSlides(state.activeSlide)
+
+        setState({
+            ...state,
+            currentSlides: newSlides,
+            transition: 0,
+            translate: containerWidth,
+            isTransitioning: false,
+        })
+    }
+
+    const getSlides = (activeSlide) => {
+        return [
+            mod(activeSlide - 1, images.length),
+            activeSlide,
+            mod(activeSlide + 1, images.length),
+        ]
+    }
+
+    
 
     const setTranslateToContainerWidth = () => {
         setState({
@@ -108,6 +143,7 @@ const ImageSlider = ({images, trasition: transtionTime}) => {
                 translate={state.translate} 
                 slideCount={state.currentSlides.length} 
                 transition={state.transition} 
+                ref={sliderContent}
                 >
                 {   
                     state.currentSlides.map(slideIndex => {
